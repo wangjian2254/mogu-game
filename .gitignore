@@ -1,7 +1,7 @@
 # osx noise
 .DS_Store
 profile
-
+*.pyc
 # xcode noise
 build/*
 *.mode1
