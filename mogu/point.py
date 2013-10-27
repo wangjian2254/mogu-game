@@ -59,7 +59,13 @@ def sortedpoint(p):
 
 
 class PointQuery(Page):
+    '''
+    用来查询，用来查询游戏的积分，并且排序。
+    '''
     def post(self):
+        '''
+        查询并输出而且排序
+        '''
         result = {'list':[],'my':None,'game':None}
         try:
 
