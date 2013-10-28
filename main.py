@@ -16,7 +16,7 @@
 # limitations under the License.
 #
 import webapp2
-from mogu.point import PointUpdate, PointQuery
+from mogu.point import PointUpdate, PointQuery, UserPointQuery
 
 
 app = webapp2.WSGIApplication([
@@ -24,6 +24,7 @@ app = webapp2.WSGIApplication([
 
     ('/PointUpdate', PointUpdate),#积分上传
     ('/PointQuery', PointQuery),#积分查询
+    ('/UserPointQuery', UserPointQuery),#用户个人所有游戏积分查询
 
 
 

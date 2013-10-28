@@ -33,6 +33,7 @@ def setPoint(game, username, point):
     if not p:
         p = Points(key_name=key)
         p.point = int(point)
+        #p.username = username
         p.put()
     else:
         p.point += int(point)
@@ -48,8 +49,8 @@ class PointUpdate(Page):
             game = self.request.get('game')
             point = self.request.get('point')
 
-            setPoint(game, username, point)
-            self.flush(getResult(True))
+            p=setPoint(game, username, point)
+            self.flush(getResult(p.point))
         except:
             self.flush(getResult(False, False, u'保存积分失败。'))
 
@@ -83,11 +84,30 @@ class PointQuery(Page):
             for i,p in enumerate(pointlist):
                 if p.key().name() == key:
                     result['my'] = i+1
-                result['list'].append({'username':'!'.join(p.key().name().split('!')[1:]), 'point':p.point})
+                result['list'].append({'username':p.key().name().split('!')[1:], 'point':p.point})
 
             self.flush(getResult(result,message=u'积分记录查询成功'))
         except:
             self.flush(getResult(False, False, u'积分记录查询失败。'))
 
 
+class UserPointQuery(Page):
+    '''
+    用来查询，用来查询游戏的积分，并且排序。
+    '''
+    def post(self):
+        '''
+        查询并输出而且排序
+        '''
+        result = {'list':[]}
+        try:
+
+            user = self.request.get('UserName')
+            gamelist = self.request.get('gamelist', '').split(',')
+            for game in gamelist:
+                p=getPoint(game, user)
+                result['list'].append({'username':user, 'point':p.point,'game':game})
+            self.flush(getResult(result,message=u'积分记录查询成功'))
+        except:
+            self.flush(getResult(False, False, u'积分记录查询失败。'))
 

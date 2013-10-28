@@ -10,7 +10,10 @@ from google.appengine.ext import db
 
 class Points(db.Model):
     '''
-    key_name : gamecode + _ + username
+    key_name : gamecode + ! + username
     '''
-    point = db.IntegerProperty()#游戏积分
+    # 假设用户对没有玩的游戏，失去兴趣了。
+    #username = db.StringProperty() #用户名
+
+    point = db.IntegerProperty() #游戏积分
 
