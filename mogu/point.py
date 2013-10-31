@@ -43,7 +43,7 @@ def setPoint(game, username, point):
 
 
 class PointUpdate(Page):
-    def get(self):
+    def post(self):
         try:
             username = self.request.get('UserName')
             game = self.request.get('game')
@@ -84,7 +84,7 @@ class PointQuery(Page):
             for i,p in enumerate(pointlist):
                 if p.key().name() == key:
                     result['my'] = i+1
-                result['list'].append({'username':p.key().name().split('!')[1:], 'point':p.point})
+                result['list'].append({'username':p.key().name().split('!')[1:], 'point':p.point,'game':game})
 
             self.flush(getResult(result,message=u'积分记录查询成功'))
         except:
