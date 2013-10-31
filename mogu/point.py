@@ -99,14 +99,14 @@ class UserPointQuery(Page):
         '''
         查询并输出而且排序
         '''
-        result = {'list':[]}
+        result = []
         try:
 
             user = self.request.get('UserName')
             gamelist = self.request.get('gamelist', '').split(',')
             for game in gamelist:
                 p=getPoint(game, user)
-                result['list'].append({'username':user, 'point':p.point,'game':game})
+                result.append({'username':user, 'point':p.point,'game':game})
             self.flush(getResult(result,message=u'积分记录查询成功'))
         except:
             self.flush(getResult(False, False, u'积分记录查询失败。'))
