@@ -43,7 +43,7 @@ def setPoint(game, username, point):
 
 
 class PointUpdate(Page):
-    def get(self):
+    def post(self):
         try:
             username = self.request.get('UserName')
             game = self.request.get('game')
