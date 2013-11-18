@@ -7,6 +7,8 @@ __author__ = u'王健'
 
 from google.appengine.ext import db
 
+class Game(db.Model):
+    model = db.StringProperty(indexed=False)
 
 class Points(db.Model):
     '''
@@ -16,4 +18,5 @@ class Points(db.Model):
     #username = db.StringProperty() #用户名
 
     point = db.IntegerProperty() #游戏积分
+    datetime = db.StringProperty(indexed=False)#积分时间
 
