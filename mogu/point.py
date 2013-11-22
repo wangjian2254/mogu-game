@@ -54,7 +54,6 @@ def setPoint(game, username, point,datetimestr,model):
                         p.put()
                 elif p.datetime.splite(' ')[0]<u:
                     p.point=point
-                    p.datetime = datetimestr
                     p.put()
         elif model == 'weekly':
             if nowdate.isocalendar()[1]==uploaddate.isocalendar()[1]:
@@ -64,7 +63,6 @@ def setPoint(game, username, point,datetimestr,model):
                         p.put()
                 elif datetime.datetime.strptime(p.datetime,timeformate).isocalendar()[1]<nowdate.isocalendar()[1]:
                     p.point=point
-                    p.datetime = datetimestr
                     p.put()
         elif model == 'monthly':
             n=nowdate.strftime(timeformatemonth)
@@ -76,7 +74,6 @@ def setPoint(game, username, point,datetimestr,model):
                         p.put()
                 elif p.datetime[:7]<n:
                     p.point=point
-                    p.datetime = datetimestr
                     p.put()
 
 
@@ -88,12 +85,10 @@ def setPoint(game, username, point,datetimestr,model):
                         p.put()
                 elif p.datetime[:4]<str(nowdate.year):
                     p.point=point
-                    p.datetime = datetimestr
                     p.put()
 
         else:
             p.point += int(point)
-            p.datetime = datetimestr
             p.put()
     memcache.set(key, p, 3600 * 24 * 7)
     return p
@@ -130,7 +125,7 @@ class PointUpdate(Page):
             datetime = self.request.get('datetime')
             model = self.request.get('model')
             g = setGame(game,model)
-            logging.error("game",'%s_%s_%s_%s_%s'%(game,username,point,datetime,model))
+            #logging.error("game",'%s_%s_%s_%s_%s'%(game,username,point,datetime,model))
             p=setPoint(game, username, point,datetime,model)
             self.flush(getResult(p.point))
         except Exception,e:
