@@ -32,6 +32,7 @@ def getPoint(game, username):
 
 
 def setPoint(game, username, point,datetimestr,model):
+    point = int(point)
     key = keystr % (game, username)
     nowdate = datetime.datetime.utcnow() + timezone
     nowdate.isocalendar()
@@ -134,6 +135,7 @@ class PointUpdate(Page):
             p=setPoint(game, username, point,datetime,model)
             self.flush(getResult(p.point))
         except Exception,e:
+            logging.error("pointupdate "+str(e))
             self.flush(getResult(False, False, u'保存积分失败。'))
 
 
