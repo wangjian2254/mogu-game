@@ -3,6 +3,7 @@
 #Date: 14-5-5
 #Time: 下午9:00
 from mogu.models import Rank
+from setting import WEBURL
 from tools.page import Page
 
 __author__ = u'王健'
@@ -25,7 +26,7 @@ class RankList(Page):
         if pre < 0:
             pre = 0
         nex = start + 20
-        self.render('template/rank/rankList.html', {'ranklist': ranklist, 'pre': pre, 'nex': nex, 'limit': 20})
+        self.render('template/rank/rankList.html', {'ranklist': ranklist, 'pre': pre, 'nex': nex, 'limit': 20,'pluginurl' : WEBURL})
 
     def post(self):
         return self.get()
@@ -38,7 +39,7 @@ class RankCreate(Page):
             rank = Rank.get_by_key_name(gamecode)
         else:
             rank = None
-        self.render('template/rank/rankUpdate.html', {'rank': rank})
+        self.render('template/rank/rankUpdate.html', {'rank': rank, 'pluginurl': WEBURL})
 
     def post(self):
         gamecode = self.request.get('gamecode',None)
