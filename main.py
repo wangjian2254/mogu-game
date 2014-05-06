@@ -16,15 +16,29 @@
 # limitations under the License.
 #
 import webapp2
+from gameserver.gamespace import CreateSpace, AddSpace, GetHotSpace, GetSpace, UploadPoint, GetAllPoint
 from mogu.point import PointUpdate, PointQuery, UserPointQuery
+from mogu.rank import RankList, RankCreate
 
 
 app = webapp2.WSGIApplication([
 
 
-    ('/PointUpdate', PointUpdate),#积分上传
-    ('/PointQuery', PointQuery),#积分查询
-    ('/UserPointQuery', UserPointQuery),#用户个人所有游戏积分查询
+                                ('/PointUpdate', PointUpdate),#积分上传
+                                ('/PointQuery', PointQuery),#积分查询
+                                ('/UserPointQuery', UserPointQuery),#用户个人所有游戏积分查询
+
+
+                                ('/RankList',RankList),# 已有积分名称的游戏列表
+                                ('/RankCreate',RankCreate),# 创建游戏的积分等级
+
+                                ('/CreateSpace', CreateSpace),
+                                ('/AddSpace', AddSpace),
+                                ('/GetHotSpace', GetHotSpace),
+                                ('/GetSpace', GetSpace),
+                                ('/UploadPoint', UploadPoint),
+                                ('/GetAllPoint', GetAllPoint),
+
 
 
 

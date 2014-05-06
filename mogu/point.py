@@ -4,10 +4,14 @@
 #Time: 下午11:25
 import datetime
 import logging
+
 from google.appengine.api import memcache
-from mogu.models.model import Points, Game
+
+from mogu.models import Points, Game
+from mogu.pointtool import keystr, getPoint
 from tools.page import Page
 from tools.util import getResult
+
 
 __author__ = u'王健'
 
@@ -16,19 +20,7 @@ timeformate = "%Y-%m-%d %H:%M:%S"
 timeformateday = "%Y-%m-%d"
 timeformatemonth = "%Y-%m"
 
-keystr = '%s!%s'
-def getPoint(game, username):
-    key = keystr % (game, username)
-    p = memcache.get(key)
-    if not p:
-        p = Points.get_by_key_name(key)
-        if p:
-            memcache.set(key, p, 3600 * 24 * 7)
-            return p
-        else:
-            return None
-    else:
-        return p
+
 
 
 def setPoint(game, username, point,datetimestr,model):

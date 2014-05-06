@@ -20,3 +20,12 @@ class Points(db.Model):
     point = db.IntegerProperty() #游戏积分
     datetime = db.StringProperty(indexed=False)#积分时间
 
+
+
+class Rank(db.Model):
+    '''
+    key_name: gamecode
+    积分对应的中文名称
+    '''
+    points = db.ListProperty(indexed=False,item_type=int)
+    ranks = db.StringListProperty(indexed=False)
