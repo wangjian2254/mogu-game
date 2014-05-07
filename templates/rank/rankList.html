@@ -1,10 +1,10 @@
 {% extends "template/basepage.html" %}
 {%block js%}
         <script  type="text/javascript">
-            function delPlugin(id,kindid){
-                art.dialog({id:'msg',title:'提示',content:"要删除点击的游戏么？",icon:'warning',lock: true,cancel:true,ok:function(){
+            function delPlugin(id){
+                art.dialog({id:'msg',title:'提示',content:"要删除点击的游戏等级么？",icon:'warning',lock: true,cancel:true,ok:function(){
                                 try{
-                                    $j.get('KindPluginDelete?id='+id+'&kindid='+kindid,null,result,false);
+                                    $j.get('RankDelete?appcode='+id,null,result,false);
 
                                 }catch(e){
                                     return ;
@@ -28,9 +28,7 @@
                 }else{
                     result_alert2('warning',resultobj.message);
                 }
-                $j(".kind"+resultobj.result).each(function(i,tr){
-                    tr.remove();
-                });
+
                 $j("#"+resultobj.result).each(function(i,tr){
                     tr.remove();
                 });
@@ -38,12 +36,25 @@
             }
         </script>
         <script  type="text/javascript">
+            var pluginlist = [];
+            {% for rank in ranklist %}
+            pluginlist.append('{{rank.key().name()}}');
+            {% endfor %}
             var plugindata=new Object();
             var pluginimgdata=new Object();
         </script>
         {% for rank in ranklist %}
-        <script  type="text/javascript" src="{{pluginurl}}/getPluginNameByGamecode?gamecode={{rank.key().name()}}"/>
+        <script  type="text/javascript" src="{{pluginurl}}/getPluginNameByGamecode?appcode={{rank.key().name()}}"/>
         {% endfor %}
+        <script type="text/javascript">
+            $j(function(){
+                for(var i=0;i<pluginlist.length;i++){
+                    $j('#td'+pluginlist[i]).html(plugindata[pluginlist[i]]);
+                    $j('#img'+pluginlist[i]).att('src','{{pluginurl}}/download?image_id='+pluginimgdata[pluginlist[i]]);
+                }
+            });
+
+        </script>
 {%endblock%}
 {% block navigator %}
 <a  href="/RankList">等级管理</a>
@@ -54,26 +65,31 @@
 <table width="90%" cellpadding="1" cellspacing="1" border="0" bgcolor="#D5E3E6">
     <tr bgcolor="#ffffff"  height="25">
     <td width="40px"  align="center">顺序号</td>
-    <td width="80px" align="center">游戏gamecode</td>
+    <td width="80px" align="center">游戏appcode</td>
     <td width="80px" align="center">游戏名称</td>
     <td width="80px" align="center">图标</td>
     <td width="100px" align="center">游戏包名</td>
     <td width="50px;" align="center">操作</td>
     </tr>
     {% for rank in ranklist %}
-        <tr  style="cursor:hand"  height="25"  onmouseover="cells_color(this,1);" onMouseOut="cells_color(this,2);" bgcolor="#ffffff">
+        <tr id="{{rank.key().name()}}" style="cursor:hand"  height="25"  onmouseover="cells_color(this,1);" onMouseOut="cells_color(this,2);" bgcolor="#ffffff">
             <td align="center">{{loop.index}}</td>
             <td align="center">{{rank.key().name()}}</td>
             <td align="center" id="td{{rank.key().name()}}"></td>
-            <td align="center"><div style="margin: 5px;float: left;"><img  src="{{pluginurl}}/download?image_id=" id="img{{rank.key().name()}}" border="0"></div></td>
+            <td align="center"><div style="margin: 5px;float: left;"><img  id="img{{rank.key().name()}}" border="0"></div></td>
             <td align="center"></td>
-            <td align="center"><a href="/RankCreate?gamecode={{rank.key().name()}}"><img src="/image/up.gif"  border="0"/></a>&nbsp;|&nbsp;
+            <td align="center"><a href="/RankCreate?appcode={{rank.key().name()}}"><img src="/image/up.gif"  border="0"/></a>&nbsp;|&nbsp;
 
             <a href="javascript:delPlugin('{{rank.key().name()}}')"><img src="/image/del.gif"  border="0"/></a>&nbsp;</td>
         </tr>
 
     {%endfor%}
-
+    <tr>
+        <td colspan="6">
+            {%if pre!=0%}<a href="/RankList?start={{pre}}">上一页</a> {%endif%}
+            {%if count==20%}<a href="/RankList?start={{nex}}">下一页</a> {%endif%}
+        </td>
+    </tr>
 </table>
 
 {% endblock %}

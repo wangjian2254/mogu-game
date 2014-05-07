@@ -5,6 +5,7 @@
 from mogu.models import Rank
 from setting import WEBURL
 from tools.page import Page
+from tools.util import getResult
 
 __author__ = u'王健'
 
@@ -12,9 +13,9 @@ __author__ = u'王健'
 class RankList(Page):
     def get(self):
         start = 0
-        gamecode = self.request.get('gamecode', None)
-        if gamecode:
-            rank = Rank.get_by_key_name(gamecode)
+        appcode = self.request.get('appcode', None)
+        if appcode:
+            rank = Rank.get_by_key_name(appcode)
             if rank:
                 ranklist = [rank]
             else:
@@ -26,7 +27,9 @@ class RankList(Page):
         if pre < 0:
             pre = 0
         nex = start + 20
-        self.render('template/rank/rankList.html', {'ranklist': ranklist, 'pre': pre, 'nex': nex, 'limit': 20,'pluginurl' : WEBURL})
+        self.render('template/rank/rankList.html',
+                    {'ranklist': ranklist, 'pre': pre, 'nex': nex, 'limit': 20, 'count': len(ranklist),
+                     'pluginurl': WEBURL})
 
     def post(self):
         return self.get()
@@ -34,27 +37,46 @@ class RankList(Page):
 
 class RankCreate(Page):
     def get(self):
-        gamecode = self.request.get('gamecode', None)
-        if gamecode:
-            rank = Rank.get_by_key_name(gamecode)
+        appcode = self.request.get('appcode', None)
+        num = 0
+        if appcode:
+            rank = Rank.get_by_key_name(appcode)
+            rlist = []
+            for i in range(rank.points):
+                rlist.append((num, rank.points[i], rank.ranks[i]))
+                num += 1
         else:
             rank = None
-        self.render('template/rank/rankUpdate.html', {'rank': rank, 'pluginurl': WEBURL})
+            rlist = []
+        elist = []
+        for i in range(20):
+            elist.append((num, '', ''))
+            num += 1
+        self.render('template/rank/rankUpdate.html', {'rank': rank, 'rlist': rlist, 'elist': elist, 'pluginurl': WEBURL})
 
     def post(self):
-        gamecode = self.request.get('gamecode',None)
-        if gamecode:
-            rank = Rank.get_by_key_name(gamecode)
+        appcode = self.request.get('appcode', None)
+        if appcode:
+            rank = Rank.get_by_key_name(appcode)
             if not rank:
-                rank = Rank(key_name=gamecode)
+                rank = Rank(key_name=appcode)
             rank.points = []
             rank.ranks = []
             for i in range(40):
-                point = self.request.get('point%s'%i, None)
-                rankstr = self.request.get('rank%s'%i, None)
+                point = self.request.get('point%s' % i, None)
+                rankstr = self.request.get('rank%s' % i, None)
                 rank.points.append(point)
                 rank.ranks.appand(rankstr)
                 rank.put()
-            self.redirect('/RankCreate?gamecode=%s'%gamecode)
+            self.redirect('/RankCreate?appcode=%s' % appcode)
         else:
             self.redirect('/RankCreate')
+
+
+class RankDelete(Page):
+    def get(self):
+        appcode = self.request.get('appcode', None)
+        if appcode:
+            rank = Rank.get_by_key_name(appcode)
+            rank.delete()
+        self.flush(getResult(appcode, True, u'删除成功'))

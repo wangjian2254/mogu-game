@@ -12,7 +12,7 @@ class Game(db.Model):
 
 class Points(db.Model):
     '''
-    key_name : gamecode + ! + username
+    key_name : appcode + ! + username
     '''
     # 假设用户对没有玩的游戏，失去兴趣了。
     #username = db.StringProperty() #用户名
@@ -24,7 +24,7 @@ class Points(db.Model):
 
 class Rank(db.Model):
     '''
-    key_name: gamecode
+    key_name: appcode
     积分对应的中文名称
     '''
     points = db.ListProperty(indexed=False,item_type=int)
