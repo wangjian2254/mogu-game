@@ -35,7 +35,9 @@ class CreateSpace(Page):
         maxnum = self.request.get('maxnum',0)
 
         spaceid = str(uuid.uuid4())
-        spacedict={'spaceid':spaceid, 'maxnum':maxnum, 'author':username,'head':head,'appcode':appcode, 'userlist':[username], 'headlist':[head], 'nicknamelist':[nickname]}
+        from mogu.pointtool import getRankPointUsername
+        point, rank = getRankPointUsername(appcode, username)
+        spacedict={'spaceid':spaceid, 'maxnum':maxnum, 'author':username,'head':head,'appcode':appcode, 'userlist':[username], 'headlist':[head], 'nicknamelist':[nickname], 'pointlist':[point], 'ranklist':[rank]}
         memcache.set(gamespaceuserlist%(appcode,spaceid),spacedict,3600*24)
         refreshSpace(appcode,spaceid)
 
@@ -61,9 +63,13 @@ class AddSpace(Page):
 
         if spacedict:
             if username not in spacedict.get('userlist',[]):
+                from mogu.pointtool import getRankPointUsername
+                point, rank = getRankPointUsername(appcode, username)
                 spacedict['userlist'].append(username)
                 spacedict['headlist'].append(head)
                 spacedict['nicknamelist'].append(nickname)
+                spacedict['pointlist'].append(point)
+                spacedict['ranklist'].append(rank)
                 memcache.set(gamespaceuserlist%(appcode,spaceid),spacedict,3600*24)
                 refreshSpace(appcode,spaceid)
             self.flush(getResult(spacedict))
