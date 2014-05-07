@@ -29,7 +29,7 @@ class RankList(Page):
         nex = start + 20
         self.render('template/rank/rankList.html',
                     {'ranklist': ranklist, 'pre': pre, 'nex': nex, 'limit': 20, 'count': len(ranklist),
-                     'pluginurl': WEBURL})
+                     'pluginurl': WEBURL, 'appcode':appcode})
 
     def post(self):
         return self.get()
@@ -37,14 +37,15 @@ class RankList(Page):
 
 class RankCreate(Page):
     def get(self):
-        appcode = self.request.get('appcode', None)
+        appcode = self.request.get('appcode', '')
         num = 0
         if appcode:
             rank = Rank.get_by_key_name(appcode)
             rlist = []
-            for i in range(rank.points):
-                rlist.append((num, rank.points[i], rank.ranks[i]))
-                num += 1
+            if rank:
+                for i in range(len(rank.points)):
+                    rlist.append((num, rank.points[i], rank.ranks[i]))
+                    num += 1
         else:
             rank = None
             rlist = []
@@ -52,7 +53,7 @@ class RankCreate(Page):
         for i in range(20):
             elist.append((num, '', ''))
             num += 1
-        self.render('template/rank/rankUpdate.html', {'rank': rank, 'rlist': rlist, 'elist': elist, 'pluginurl': WEBURL})
+        self.render('template/rank/rankUpdate.html', {'rank': rank, 'rlist': rlist, 'elist': elist, 'pluginurl': WEBURL, 'appcode':appcode})
 
     def post(self):
         appcode = self.request.get('appcode', None)
@@ -65,9 +66,10 @@ class RankCreate(Page):
             for i in range(40):
                 point = self.request.get('point%s' % i, None)
                 rankstr = self.request.get('rank%s' % i, None)
-                rank.points.append(point)
-                rank.ranks.appand(rankstr)
-                rank.put()
+                if point and rankstr:
+                    rank.points.append(int(point))
+                    rank.ranks.append(rankstr)
+                    rank.put()
             self.redirect('/RankCreate?appcode=%s' % appcode)
         else:
             self.redirect('/RankCreate')
