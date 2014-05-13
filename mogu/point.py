@@ -7,7 +7,7 @@ import logging
 
 from google.appengine.api import memcache
 
-from mogu.models import Points, Game
+from model.models import Points, Game
 from mogu.pointtool import keystr, getPoint
 from tools.page import Page
 from tools.util import getResult

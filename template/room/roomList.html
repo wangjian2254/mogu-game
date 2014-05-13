@@ -2,9 +2,9 @@
 {%block js%}
         <script  type="text/javascript">
             function delPlugin(id){
-                art.dialog({id:'msg',title:'提示',content:"要删除点击的游戏等级么？",icon:'warning',lock: true,cancel:true,ok:function(){
+                art.dialog({id:'msg',title:'提示',content:"要删除点击的游戏房间数么？",icon:'warning',lock: true,cancel:true,ok:function(){
                                 try{
-                                    $j.get('RankDelete?appcode='+id,null,result,false);
+                                    $j.get('RoomDelete?appcode='+id,null,result,false);
 
                                 }catch(e){
                                     return ;
@@ -37,14 +37,14 @@
         </script>
         <script  type="text/javascript">
             var pluginlist = [];
-            {% for rank in ranklist %}
-            pluginlist.push('{{rank.key().name()}}');
+            {% for room in roomlist %}
+            pluginlist.push('{{room.key().name()}}');
             {% endfor %}
             var plugindata=new Object();
             var pluginimgdata=new Object();
         </script>
-        {% for rank in ranklist %}
-        <script  type="text/javascript" src="{{pluginurl}}/getPluginNameByGamecode?appcode={{rank.key().name()}}">
+        {% for room in roomlist %}
+        <script  type="text/javascript" src="{{pluginurl}}/getPluginNameByGamecode?appcode={{room.key().name()}}">
         </script>
         {% endfor %}
         <script   type="text/javascript" >
@@ -60,7 +60,7 @@
         </script>
 {%endblock%}
 {% block navigator %}
-<a  href="/RankList">等级管理</a>
+<a  href="/RoomList">游戏房间管理</a>
  >>  <a href="javascript:history.back(-1);">后退</a>
 {% endblock %}
 {% block content %}
@@ -68,16 +68,15 @@
 <table width="90%" cellpadding="1" cellspacing="1" border="0" bgcolor="#D5E3E6">
     <tr  bgcolor="#ffffff">
         <td colspan="6" style="height: 50px;text-align: center;">
-            <form action="/RankList" method="get">
-                <label>appcode:</label><input name="appcode" value="{%if appcode%}{{appcode}}{%endif%}" width="20"><input type="submit" value="查询"></form>
+            <form action="/RoomList" method="get">
+                <label>appcode:</label><input name="appcode" value="{%if appcode%}{{appcode}}{%endif%}" width="20"><input type="submit" value="查询">
+            </form>
             {%if appcode%}
-            <form action="/RankCreate" method="get">
+            <form action="/RoomCreate" method="get">
                 <input type="hidden" name="appcode" value="{{appcode}}" width="20">
-                <input type="submit" value="等级管理">
+                <input type="submit" value="房间管理">
             </form>
             {%endif%}
-
-
         </td>
     </tr>
     <tr bgcolor="#ffffff"  height="25">
@@ -85,26 +84,26 @@
     <td width="80px" align="center">游戏appcode</td>
     <td width="80px" align="center">游戏名称</td>
     <td width="80px" align="center">图标</td>
-    <td width="100px" align="center">游戏包名</td>
+    <td width="100px" align="center">房间数</td>
     <td width="50px;" align="center">操作</td>
     </tr>
-    {% for rank in ranklist %}
-        <tr id="{{rank.key().name()}}" style="cursor:hand"  height="25"  onmouseover="cells_color(this,1);" onMouseOut="cells_color(this,2);" bgcolor="#ffffff">
+    {% for room in roomlist %}
+        <tr id="{{room.key().name()}}" style="cursor:hand"  height="25"  onmouseover="cells_color(this,1);" onMouseOut="cells_color(this,2);" bgcolor="#ffffff">
             <td align="center">{{loop.index}}</td>
-            <td align="center">{{rank.key().name()}}</td>
-            <td align="center" id="td{{rank.key().name().replace('.','_')}}"></td>
-            <td align="center"><div style="margin: 5px;float: left;"><img  id="img{{rank.key().name().replace('.','_')}}" border="0"></div></td>
-            <td align="center"></td>
-            <td align="center"><a href="/RankCreate?appcode={{rank.key().name()}}"><img src="/image/update.gif"  border="0"/></a>&nbsp;|&nbsp;
+            <td align="center">{{room.key().name()}}</td>
+            <td align="center" id="td{{room.key().name().replace('.','_')}}"></td>
+            <td align="center"><div style="margin: 5px;float: left;"><img  id="img{{room.key().name().replace('.','_')}}" border="0"></div></td>
+            <td align="center">{{room.num}}</td>
+            <td align="center"><a href="/RoomCreate?appcode={{room.key().name()}}"><img src="/image/update.gif"  border="0"/></a>&nbsp;|&nbsp;
 
-            <a href="javascript:delPlugin('{{rank.key().name()}}')"><img src="/image/del.gif"  border="0"/></a>&nbsp;</td>
+            <a href="javascript:delPlugin('{{room.key().name()}}')"><img src="/image/del.gif"  border="0"/></a>&nbsp;</td>
         </tr>
 
     {%endfor%}
     <tr  bgcolor="#ffffff">
         <td colspan="6">
-            {%if pre!=0%}<a href="/RankList?start={{pre}}">上一页</a> {%endif%}
-            {%if count==20%}<a href="/RankList?start={{nex}}">下一页</a> {%endif%}
+            {%if pre!=0%}<a href="/RoomList?start={{pre}}">上一页</a> {%endif%}
+            {%if count==20%}<a href="/RoomList?start={{nex}}">下一页</a> {%endif%}
         </td>
     </tr>
 </table>

@@ -2,7 +2,7 @@
 #author:u'王健'
 #Date: 14-5-5
 #Time: 下午9:00
-from mogu.models import Rank
+from model.models import Rank
 from setting import WEBURL
 from tools.page import Page
 from tools.util import getResult
@@ -57,6 +57,9 @@ class RankCreate(Page):
 
     def post(self):
         appcode = self.request.get('appcode', None)
+        num = 0
+        rlist = []
+        elist = []
         if appcode:
             rank = Rank.get_by_key_name(appcode)
             if not rank:
@@ -70,9 +73,20 @@ class RankCreate(Page):
                     rank.points.append(int(point))
                     rank.ranks.append(rankstr)
                     rank.put()
-            self.redirect('/RankCreate?appcode=%s' % appcode)
+            if rank:
+                for i in range(len(rank.points)):
+                    rlist.append((num, rank.points[i], rank.ranks[i]))
+                    num += 1
+            for i in range(20):
+                elist.append((num, '', ''))
+                num += 1
+            self.render('template/rank/rankUpdate.html', {'rank': rank, 'rlist': rlist, 'elist': elist, 'pluginurl': WEBURL, 'appcode':appcode, 'result':'succeed', 'msg':u'保存成功'})
         else:
-            self.redirect('/RankCreate')
+
+            for i in range(20):
+                elist.append((num, '', ''))
+                num += 1
+            self.render('template/rank/rankUpdate.html', {'rank': None, 'rlist': rlist, 'elist': elist, 'pluginurl': WEBURL, 'appcode':appcode, 'result':'warning', 'msg':u'应用包名不存在'})
 
 
 class RankDelete(Page):

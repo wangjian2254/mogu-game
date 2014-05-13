@@ -6,10 +6,11 @@ from google.appengine.api import memcache
 
 __author__ = u'王健'
 
-
-from mogu.models import Points, Game, Rank
+from model.models import Points, Rank, Room
 
 keystr = '%s!%s'
+
+
 def getPoint(game, username):
     key = keystr % (game, username)
     p = memcache.get(key)
@@ -22,6 +23,7 @@ def getPoint(game, username):
             return None
     else:
         return p
+
 
 def getRankPoint(game):
     rank = memcache.get(game)
@@ -43,8 +45,30 @@ def getRankPointUsername(game, username):
     if p:
         point = p.point
     if r:
-        for i,n in enumerate(r.points):
+        for i, n in enumerate(r.points):
             if point <= n:
                 rank = r.ranks[i]
     return point, rank
 
+
+roomkeystr = 'room!%s'
+
+
+def getRoom(game):
+    room = memcache.get(roomkeystr % game)
+    if not room:
+        room = Room.get_by_key_name(game)
+        if room:
+            memcache.set(roomkeystr % game, room, 3600 * 24 * 10)
+        else:
+            return None
+    else:
+        return room
+
+
+def getRoomNum(game):
+    room = getRoom(game)
+    if not room:
+        return 0
+    else:
+        return room.num

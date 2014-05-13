@@ -1,0 +1,90 @@
+{% extends "template/basepage.html" %}
+{% block js%}
+        <script type="text/javascript">
+            function delRoom(num){
+                $j('#point'+num).val('');
+                $j('#room'+num).val('');
+            }
+        </script>
+        {%if appcode %}
+        <script  type="text/javascript">
+
+
+
+            var pluginlist = [];
+
+            pluginlist.push('{{appcode}}');
+
+            var plugindata=new Object();
+            var pluginimgdata=new Object();
+        </script>
+
+        <script  type="text/javascript" src="{{pluginurl}}/getPluginNameByGamecode?appcode={{appcode}}" >
+        </script>
+        <script   type="text/javascript" >
+            window.onload=function()
+            {
+                var appcode=null;
+                for(var i=0;i<pluginlist.length;i++){
+                    appcode = pluginlist[i].replace(/\./g,'_');
+                    $j('#td'+appcode).html(plugindata[appcode]);
+                    $j('#img'+appcode).attr('src','{{pluginurl}}/download?image_id='+pluginimgdata[appcode]);
+                }
+            }
+        </script>
+         {%endif%}
+{% endblock%}
+{% block navigator %}
+<a  href="/RoomList">等级管理</a>
+ >> <a href="#">修改游戏等级</a> >> <a href="javascript:history.back(-1);">后退</a>
+{% endblock %}
+{% block content %}
+<form action="/RoomCreate" enctype="multipart/form-data" method="post" id="form1" onsubmit="return valSubmit('form1');">
+
+<table width="90%"  id="fromtable" cellpadding="1" cellspacing="1" border="0" bgcolor="#D5E3E6">
+  <tr  bgcolor="#ffffff">
+    <td style="padding-left:5px;" >游戏名称:</td>
+  </tr>
+  <tr  bgcolor="#ffffff">
+    <td id="td{{appcode.replace('.','_')}}">
+      </td>
+  </tr>
+
+
+
+  <tr bgcolor="#ffffff" >
+    <td style="padding-left:5px;" >应用包名:</td>
+  </tr>
+  <tr bgcolor="#ffffff" >
+    <td>
+	  <input type="text" name="appcode" val="{'required':true,'title':'应用包名'}"  value="{%if room!=None%}{{room.key().name()}}{%else%}{{appcode}}{%endif%}"  style="width:500px;"/><span class="red_star">*</span>	</td>
+  </tr>
+    <tr bgcolor="#ffffff" >
+    <td style="padding-left:5px;" >应用图标:</td>
+  </tr>
+  <tr bgcolor="#ffffff" >
+    <td>
+	  <img id="img{{appcode.replace('.','_')}}" />	</td>
+  </tr>
+
+  <tr bgcolor="#ffffff" >
+    <td  style="padding-left:5px;" >房间数:</td>
+  </tr>
+  <tr bgcolor="#ffffff" >
+    <td>
+	    <input type="text" name="num"  val="{'required':true,'title':'房间数'}" value="{%if room and room.num%}{{room.num}}{%else%}20{%endif%}">
+    </td>
+  </tr>
+  <tr bgcolor="#ffffff" >
+    <td>&nbsp;</td>
+  </tr>
+  <tr bgcolor="#ffffff" >
+    <td  align="left"  style="padding-left:25px;" >
+      <input type="submit" name="Submit" value="确定"/>
+	  <input type="reset" name="Reset" value="重置"/>
+
+    </td>
+  </tr>
+</table>
+</form>
+{% endblock %}

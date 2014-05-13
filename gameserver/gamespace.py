@@ -26,6 +26,13 @@ def refreshSpace(appcode,spaceid):
     gslist = gslist[-20:]
     memcache.set(gamespacelist%(appcode),gslist,3600*24*3)
 
+def createEmptySpace(appcode,spaceid=None,maxnum=6):
+    if not spaceid:
+        spaceid = str(uuid.uuid4())
+    spacedict={'spaceid':spaceid, 'maxnum':maxnum, 'appcode':appcode, 'userlist':[], 'headlist':[], 'nicknamelist':[], 'pointlist':[], 'ranklist':[]}
+    memcache.set(gamespaceuserlist%(appcode,spaceid),spacedict,3600*24)
+    return spaceid,spacedict
+
 class CreateSpace(Page):
     def get(self):
         username = self.request.get('username','')
@@ -85,6 +92,7 @@ class AddSpace(Page):
 class GetHotSpace(Page):
     def get(self):
         appcode = self.request.get('appcode','')
+        start = int(self.request.get('start','0'))
         gslist = memcache.get(gamespacelist%(appcode))
 
         spacelist = []
