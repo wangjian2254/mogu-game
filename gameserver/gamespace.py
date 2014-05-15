@@ -10,10 +10,11 @@ from tools.util import getResult
 
 __author__ = u'王健'
 
-gamespaceuserlist = 'appcode%sspace%suserlist'
-gamespacelist = 'appcode%sspacelist'
+gamespaceuserlist = 'userlist_appcode%sspace%suserlist'
+gamespacelist = 'spacelist_appcode%sspacelist'
 spacestatus = 'space%s'
-usergamepoint = 'appcode%sspace%susername%s'
+usergamepoint = 'point_appcode%sspace%susername%s'
+usercurrentroom = 'room_appcode%username%s'
 
 gameflushnum = 18
 
@@ -36,6 +37,25 @@ def createEmptySpace(appcode, spaceid=None, maxnum=6):
                  'nicknamelist': [], 'pointlist': [], 'ranklist': []}
     memcache.set(gamespaceuserlist % (appcode, spaceid), spacedict, 3600 * 24)
     return spaceid, spacedict
+
+def quitSpaceRoom(appcode,spaceid,username):
+    spacedict = memcache.get(gamespaceuserlist % (appcode, spaceid))
+    if spacedict and username in spacedict.get('userlist', []):
+        index = spacedict['userlist'].index(username)
+        spacedict['userlist'].pop(index)
+        spacedict['headlist'].pop(index)
+        spacedict['nicknamelist'].pop(index)
+        spacedict['pointlist'].pop(index)
+        spacedict['ranklist'].pop(index)
+        memcache.set(gamespaceuserlist % (appcode, spaceid), spacedict, 3600 * 24)
+
+def userCurrentRoom(appcode,sid,username):
+    spaceid = memcache.get(usercurrentroom % (appcode,username))
+    if sid!=spaceid and spaceid:
+        quitSpaceRoom(appcode,spaceid,username)
+    elif not spaceid:
+        memcache.set(usercurrentroom % (appcode,username),sid,3600*24)
+
 
 
 class CreateSpace0(Page):
@@ -93,14 +113,14 @@ class CreateSpace(Page):
                 break
         if not sid and len(gslist) == 0:
             sid = str(uuid.uuid4())
-            spacedict = {'spaceid': spaceid, 'status': 0, 'maxnum': maxnum, 'author': username, 'head': head,
+            spacedict = {'spaceid': sid, 'status': 0, 'maxnum': maxnum, 'author': username, 'head': head,
                          'appcode': appcode,
                          'userlist': [username], 'headlist': [head], 'nicknamelist': [nickname], 'pointlist': [point],
                          'ranklist': [rank]}
-            memcache.set(gamespaceuserlist % (appcode, spaceid), spacedict, 3600 * 24)
-            refreshSpace(appcode, spaceid)
-
-        self.flush(getResult(spaceid))
+            memcache.set(gamespaceuserlist % (appcode, sid), spacedict, 3600 * 24)
+            refreshSpace(appcode, sid)
+        userCurrentRoom(appcode,sid,username)
+        self.flush(getResult(sid))
 
     def post(self):
         self.get()
@@ -153,21 +173,8 @@ class QuiteSpace(Page):
         spaceid = self.request.get('spaceid', '')
 
         spacedict = memcache.get(gamespaceuserlist % (appcode, spaceid))
-        # spaceid = str(uuid.uuid4())
-        # spacedict={'spaceid':spaceid, 'author':username,'appcode':appcode, 'userlist':[username]}
-        # memcache.set(gamespaceuserlist%(appcode,spaceid),spacedict,3600*24)
-
         if spacedict and username in spacedict.get('userlist', []):
-
-
-            index = spacedict['userlist'].index(username)
-            spacedict['userlist'].pop(index)
-            spacedict['headlist'].pop(index)
-            spacedict['nicknamelist'].pop(index)
-            spacedict['pointlist'].pop(index)
-            spacedict['ranklist'].pop(index)
-            memcache.set(gamespaceuserlist % (appcode, spaceid), spacedict, 3600 * 24)
-            self.flush(getResult(True, True, u'退出房间成功'))
+            quitSpaceRoom(appcode,spaceid,username)
         elif username not in spacedict.get('userlist', []):
             self.flush(getResult(True, True, u'用户不在房间'))
         else:
