@@ -16,7 +16,7 @@
 # limitations under the License.
 #
 import webapp2
-from gameserver.gamespace import CreateSpace, AddSpace, GetHotSpace, GetSpace, UploadPoint, GetAllPoint
+from gameserver.gamespace import CreateSpace, AddSpace, GetHotSpace, GetSpace, UploadPoint, GetAllPoint, QuiteSpace
 from mogu.point import PointUpdate, PointQuery, UserPointQuery
 from mogu.rank import RankList, RankCreate, RankDelete
 from mogu.room import RoomList, RoomCreate, RoomDelete
@@ -40,6 +40,7 @@ app = webapp2.WSGIApplication([
 
                                 ('/CreateSpace', CreateSpace),
                                 ('/AddSpace', AddSpace),
+                                ('/QuiteSpace', QuiteSpace),
                                 ('/GetHotSpace', GetHotSpace),
                                 ('/GetSpace', GetSpace),
                                 ('/UploadPoint', UploadPoint),
