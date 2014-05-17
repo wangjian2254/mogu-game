@@ -14,7 +14,7 @@ gamespaceuserlist = 'userlist_appcode%sspace%suserlist'
 gamespacelist = 'spacelist_appcode%sspacelist'
 spacestatus = 'space%s'
 usergamepoint = 'point_appcode%sspace%susername%s'
-usercurrentroom = 'room_appcode%username%s'
+usercurrentroom = 'room_appcode%ssername%s'
 
 gameflushnum = 18
 
@@ -30,10 +30,10 @@ def refreshSpace(appcode, spaceid):
     memcache.set(gamespacelist % (appcode), gslist, 3600 * 24 * 3)
 
 
-def createEmptySpace(appcode, spaceid=None, maxnum=6):
+def createEmptySpace(appcode, spaceid=None, maxnum=6,index=0):
     if not spaceid:
         spaceid = str(uuid.uuid4())
-    spacedict = {'spaceid': spaceid, 'maxnum': maxnum, 'appcode': appcode, 'userlist': [], 'headlist': [],
+    spacedict = {'spaceid': spaceid, 'roomname':u'房间 %s'%index, 'maxnum': maxnum, 'appcode': appcode, 'userlist': [], 'headlist': [],
                  'nicknamelist': [], 'pointlist': [], 'ranklist': []}
     memcache.set(gamespaceuserlist % (appcode, spaceid), spacedict, 3600 * 24)
     return spaceid, spacedict
@@ -66,13 +66,15 @@ class CreateSpace0(Page):
         appcode = self.request.get('appcode', '')
         maxnum = self.request.get('maxnum', 0)
 
-        spaceid = str(uuid.uuid4())
         from mogu.pointtool import getRankPointUsername
 
         point, rank = getRankPointUsername(appcode, username)
-        spacedict = {'spaceid': spaceid, 'maxnum': maxnum, 'author': username, 'head': head, 'appcode': appcode,
-                     'userlist': [username], 'headlist': [head], 'nicknamelist': [nickname], 'pointlist': [point],
-                     'ranklist': [rank]}
+        spaceid, spacedict = createEmptySpace(appcode, index=1)
+        spacedict['userlist'].append(username)
+        spacedict['headlist'].append(head)
+        spacedict['nicknamelist'].append(nickname)
+        spacedict['pointlist'].append(point)
+        spacedict['ranklist'].append(rank)
         memcache.set(gamespaceuserlist % (appcode, spaceid), spacedict, 3600 * 24)
         refreshSpace(appcode, spaceid)
 
@@ -112,11 +114,14 @@ class CreateSpace(Page):
                 sid = spaceid
                 break
         if not sid and len(gslist) == 0:
-            sid = str(uuid.uuid4())
-            spacedict = {'spaceid': sid, 'status': 0, 'maxnum': maxnum, 'author': username, 'head': head,
-                         'appcode': appcode,
-                         'userlist': [username], 'headlist': [head], 'nicknamelist': [nickname], 'pointlist': [point],
-                         'ranklist': [rank]}
+            sid, spacedict = createEmptySpace(appcode, index=1)
+            spacedict['userlist'].append(username)
+            spacedict['headlist'].append(head)
+            spacedict['nicknamelist'].append(nickname)
+            spacedict['pointlist'].append(point)
+            spacedict['ranklist'].append(rank)
+
+
             memcache.set(gamespaceuserlist % (appcode, sid), spacedict, 3600 * 24)
             refreshSpace(appcode, sid)
         userCurrentRoom(appcode,sid,username)
@@ -150,6 +155,7 @@ class AddSpace(Page):
             spacedict['pointlist'].append(point)
             spacedict['ranklist'].append(rank)
             memcache.set(gamespaceuserlist % (appcode, spaceid), spacedict, 3600 * 24)
+            userCurrentRoom(appcode,spaceid,username)
             self.flush(getResult(spaceid))
         elif spacedict.get('status', 0) == 1:
             self.flush(getResult(None, False, u'玩家正在游戏，不能加入'))
@@ -193,15 +199,17 @@ class GetHotSpace(Page):
         if not gslist:
             gslist = []
         spacelist = []
+        num=start+1
         for spaceid in gslist[start:start + gameflushnum]:
             spacedict = memcache.get(gamespaceuserlist % (appcode, spaceid))
             if not spacedict:
-                spaceid, spacedict = createEmptySpace(appcode, spaceid)
+                spaceid, spacedict = createEmptySpace(appcode, spaceid,index=num)
             spacelist.append(spacedict)
+            num+=1
         roomnum = getRoomNum(appcode)
         if len(gslist) < roomnum:
             for i in range(roomnum - len(gslist)):
-                spaceid, spacedict = createEmptySpace(appcode, spaceid)
+                spaceid, spacedict = createEmptySpace(appcode,index=i+1)
                 refreshSpace(appcode, spaceid)
                 if len(spacelist) < gameflushnum:
                     spacelist.append(spacedict)

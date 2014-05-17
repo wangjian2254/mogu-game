@@ -60,6 +60,7 @@ def getRoom(game):
         room = Room.get_by_key_name(game)
         if room:
             memcache.set(roomkeystr % game, room, 3600 * 24 * 10)
+            return room
         else:
             return None
     else:
