@@ -38,7 +38,7 @@ def createEmptySpace(appcode, spaceid=None, maxnum=6,index=0):
     return spaceid, spacedict
 
 def quitSpaceRoom(appcode,spaceid,username):
-    spacedict = RoomJson.get_spacedict_id(spaceid)
+    spacedict = RoomJson.get_spacedict_id(appcode,spaceid)
     if spacedict and username in spacedict.get('userlist', []):
         index = spacedict['userlist'].index(username)
         spacedict['userlist'].pop(index)
@@ -97,7 +97,7 @@ class CreateSpace(Page):
 
         gslist = Room.get_spaceids(appcode)
         for spaceid in gslist:
-            spacedict = RoomJson.get_spacedict_id(spaceid)
+            spacedict = RoomJson.get_spacedict_id(appcode,spaceid)
             if spacedict and spacedict.get('status', 0) == 0 and len(spacedict.get('userlist', [])) < spacedict.get(
                     'maxnum', 6) and username not in spacedict.get('userlist', []):
                 point, rank = getRankPointUsername(appcode, username)
@@ -127,7 +127,7 @@ class AddSpace(Page):
         appcode = self.request.get('appcode', '')
         spaceid = self.request.get('spaceid', '')
 
-        spacedict = RoomJson.get_spacedict_id(spaceid)
+        spacedict = RoomJson.get_spacedict_id(appcode,spaceid)
         if spacedict and spacedict.get('status', 0) == 0 and len(spacedict.get('userlist', [])) < spacedict.get(
                 'maxnum', 6) and username not in spacedict.get('userlist', []):
             from mogu.pointtool import getRankPointUsername
@@ -162,7 +162,7 @@ class QuiteSpace(Page):
         appcode = self.request.get('appcode', '')
         spaceid = self.request.get('spaceid', '')
 
-        spacedict = RoomJson.get_spacedict_id(spaceid)
+        spacedict = RoomJson.get_spacedict_id(appcode,spaceid)
         if spacedict and username in spacedict.get('userlist', []):
             quitSpaceRoom(appcode,spaceid,username)
         elif username not in spacedict.get('userlist', []):
@@ -183,7 +183,7 @@ class GetHotSpace(Page):
         spacelist = []
         for spaceid in gslist[start:start + gameflushnum]:
 
-            spacedict = RoomJson.get_spacedict_id(spaceid)
+            spacedict = RoomJson.get_spacedict_id(appcode,spaceid)
             spacelist.append(spacedict)
 
         self.flush(getResult(spacelist))
@@ -198,7 +198,7 @@ class GetSpace(Page):
         appcode = self.request.get('appcode', '')
         spaceid = self.request.get('spaceid', '')
 
-        spacedict = RoomJson.get_spacedict_id(spaceid)
+        spacedict = RoomJson.get_spacedict_id(appcode,spaceid)
         if spacedict:
             self.flush(getResult(spacedict))
         else:
@@ -219,7 +219,7 @@ class UploadPoint(Page):
         logging.info("%s:%s:%s:%s" % (username, appcode, spaceid, point))
 
         memcache.set(usergamepoint % (appcode, spaceid, username), point, 3600)
-        spacedict = RoomJson.get_spacedict_id(spaceid)
+        spacedict = RoomJson.get_spacedict_id(appcode,spaceid)
         userpointdict = []
         for user in spacedict.get('userlist', []):
             p = memcache.get(usergamepoint % (appcode, spaceid, user))
@@ -236,7 +236,7 @@ class GetAllPoint(Page):
         appcode = self.request.get('appcode', '')
         spaceid = self.request.get('spaceid', '')
 
-        spacedict = RoomJson.get_spacedict_id(spaceid)
+        spacedict = RoomJson.get_spacedict_id(appcode,spaceid)
         userpointdict = []
         for user in spacedict.get('userlist', []):
             p = memcache.get(usergamepoint % (appcode, spaceid, user))

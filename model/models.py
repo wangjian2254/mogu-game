@@ -45,9 +45,9 @@ class RoomJson(db.Model):
         return d
 
     @classmethod
-    def get_spacedict_id(cls,id):
+    def get_spacedict_id(cls,appcode,id):
         from gameserver.gamespace import gamespaceuserlist
-        d = memcache.get(gamespaceuserlist)
+        d = memcache.get(gamespaceuserlist%(appcode,id))
         if not d:
             rj = cls.get_by_key_name(id)
             d = rj.get_spacedict()
