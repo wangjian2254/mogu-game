@@ -2,6 +2,9 @@
 #author:u'王健'
 #Date: 13-6-1
 #Time: 下午9:21
+import json
+from google.appengine.api import memcache
+
 
 __author__ = u'王健'
 
@@ -31,6 +34,25 @@ class Rank(db.Model):
     ranks = db.StringListProperty(indexed=False)
 
 
+class RoomJson(db.Model):
+    content = db.StringProperty(indexed=False)
+    appcode = db.StringProperty()
+
+    def get_spacedict(self):
+        d = json.loads(self.content)
+        from gameserver.gamespace import gamespaceuserlist
+        memcache.set(gamespaceuserlist % (self.appcode, self.key().name()), d, 3600 * 24)
+        return d
+
+    @classmethod
+    def get_spacedict_id(cls,id):
+        from gameserver.gamespace import gamespaceuserlist
+        d = memcache.get(gamespaceuserlist)
+        if not d:
+            rj = cls.get_by_key_name(id)
+            d = rj.get_spacedict()
+        return d
+
 
 class Room(db.Model):
     '''
@@ -38,3 +60,19 @@ class Room(db.Model):
     房间列表对应的中文名称
     '''
     num = db.IntegerProperty(indexed=False)#房间数量
+    roomids = db.StringListProperty(indexed=False)
+
+    def put(self, **kwargs):
+        super(Room, self).put(**kwargs)
+        from gameserver.gamespace import gamespacelist
+        memcache.set(gamespacelist % (self.key().name()), self.roomids, 3600 * 24 * 3)
+
+    @classmethod
+    def get_spaceids(cls,appcode):
+        from gameserver.gamespace import gamespacelist
+        spaceids = memcache.get(gamespacelist % (appcode))
+        if not spaceids:
+            room = cls.get_by_key_name(appcode)
+            memcache.set(gamespacelist % (room.key().name()), room.roomids, 3600 * 24 * 3)
+            spaceids = room.roomids
+        return spaceids

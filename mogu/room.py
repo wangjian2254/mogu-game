@@ -2,7 +2,9 @@
 #author:u'王健'
 #Date: 14-5-5
 #Time: 下午9:00
-from model.models import Room
+import json
+import uuid
+from model.models import Room, RoomJson
 from setting import WEBURL
 from tools.page import Page
 from tools.util import getResult
@@ -54,7 +56,20 @@ class RoomCreate(Page):
             if not room:
                 room = Room(key_name=appcode)
             room.num = int(num)
+
+            for i in range(room.num-len(room.roomids)):
+                spid = 'room'+str(uuid.uuid4())
+                room.roomids.append(spid)
+                roomjson = RoomJson(key_name=spid)
+                from gameserver.gamespace import createEmptySpace
+                spacedict,spid = createEmptySpace(appcode,spid,6,len(room.roomids))
+                roomjson.appcode=appcode
+                roomjson.content = json.dumps(spacedict)
+                roomjson.put()
+
             room.put()
+
+
             self.render('template/room/roomUpdate.html', {'room': room, 'pluginurl': WEBURL, 'appcode':appcode, 'result':'succeed', 'msg':u'保存成功'})
         else:
             self.render('template/room/roomUpdate.html', {'room': None, 'pluginurl': WEBURL, 'appcode':appcode, 'result':'warning', 'msg':u'应用包名不存在'})
