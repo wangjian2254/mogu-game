@@ -113,7 +113,7 @@ class CreateSpace(Page):
             self.flush(getResult(None,False,u'没有空闲房间'))
             return
         userCurrentRoom(appcode,sid,username)
-        self.flush(getResult(sid))
+        self.flush(getResult(spacedict))
 
     def post(self):
         self.get()
@@ -140,13 +140,13 @@ class AddSpace(Page):
             spacedict['ranklist'].append(rank)
             memcache.set(gamespaceuserlist % (appcode, spaceid), spacedict, 3600 * 24)
             userCurrentRoom(appcode,spaceid,username)
-            self.flush(getResult(spaceid))
+            self.flush(getResult(spacedict))
         elif spacedict.get('status', 0) == 1:
             self.flush(getResult(None, False, u'玩家正在游戏，不能加入'))
         elif len(spacedict.get('userlist', [])) >= spacedict.get('maxnum', 6):
             self.flush(getResult(None, False, u'玩家已经满员，不能加入'))
         elif username in spacedict.get('userlist', []):
-            self.flush(getResult(spaceid))
+            self.flush(getResult(spacedict))
         else:
             self.flush(getResult(None, False, u'房间已经不存在，请刷新房间列表'))
 
