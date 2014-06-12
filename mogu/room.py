@@ -62,7 +62,7 @@ class RoomCreate(Page):
                 room.roomids.append(spid)
                 roomjson = RoomJson(key_name=spid)
                 from gameserver.gamespace import createEmptySpace
-                spacedict,spid = createEmptySpace(appcode,spid,6,len(room.roomids))
+                spid,spacedict = createEmptySpace(appcode,spid,6,len(room.roomids))
                 roomjson.appcode=appcode
                 roomjson.content = json.dumps(spacedict)
                 roomjson.put()
