@@ -165,6 +165,7 @@ class QuiteSpace(Page):
         spacedict = RoomJson.get_spacedict_id(appcode,spaceid)
         if spacedict and username in spacedict.get('userlist', []):
             quitSpaceRoom(appcode,spaceid,username)
+            self.flush(getResult(True, True, u'退出房间成功'))
         elif username not in spacedict.get('userlist', []):
             self.flush(getResult(True, True, u'用户不在房间'))
         else:
