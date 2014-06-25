@@ -31,6 +31,7 @@ def getRankPoint(game):
         rank = Rank.get_by_key_name(game)
         if rank:
             memcache.set(game, rank, 3600 * 24 * 10)
+            return rank
         else:
             return None
     else:
