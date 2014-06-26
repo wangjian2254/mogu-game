@@ -19,7 +19,7 @@ import webapp2
 from gameserver.gamespace import CreateSpace, AddSpace, GetHotSpace, GetSpace, UploadPoint, GetAllPoint, QuiteSpace
 from mogu.point import PointUpdate, PointQuery, UserPointQuery
 from mogu.rank import RankList, RankCreate, RankDelete
-from mogu.room import RoomList, RoomCreate, RoomDelete
+from mogu.room import RoomList, RoomCreate, RoomDelete, RoomJSONFile
 
 
 app = webapp2.WSGIApplication([
@@ -45,6 +45,7 @@ app = webapp2.WSGIApplication([
                                 ('/GetSpace', GetSpace),
                                 ('/UploadPoint', UploadPoint),
                                 ('/GetAllPoint', GetAllPoint),
+                                ('/RoomJSONFile', RoomJSONFile),
 
 
 

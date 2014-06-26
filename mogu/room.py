@@ -82,3 +82,13 @@ class RoomDelete(Page):
             room = Room.get_by_key_name(appcode)
             room.delete()
         self.flush(getResult(appcode, True, u'删除成功'))
+
+class RoomJSONFile(Page):
+    def get(self):
+        rl = []
+        for room in Room.all():
+            r={'appcode':room.key().name(),'roomlist':[]}
+            for rid in room.roomids:
+                r['roomlist'].append(RoomJson.get_spacedict_id(room.key().name(),rid))
+            rl.append(r)
+        self.flush({'gamelist':rl})
