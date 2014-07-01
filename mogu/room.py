@@ -89,6 +89,12 @@ class RoomJSONFile(Page):
         for room in Room.all():
             r={'appcode':room.key().name(),'roomlist':[]}
             for rid in room.roomids:
-                r['roomlist'].append(RoomJson.get_spacedict_id(room.key().name(),rid))
+                roomdict = RoomJson.get_spacedict_id(room.key().name(),rid)
+                del roomdict['userlist']
+                del roomdict['headlist']
+                del roomdict['nicknamelist']
+                del roomdict['pointlist']
+                del roomdict['ranklist']
+                r['roomlist'].append(roomdict)
             rl.append(r)
         self.flush({'gamelist':rl})
