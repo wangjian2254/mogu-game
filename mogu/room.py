@@ -85,16 +85,35 @@ class RoomDelete(Page):
 
 class RoomJSONFile(Page):
     def get(self):
-        rl = []
-        for room in Room.all():
-            r={'appcode':room.key().name(),'roomlist':[]}
-            for rid in room.roomids:
-                roomdict = RoomJson.get_spacedict_id(room.key().name(),rid)
-                del roomdict['userlist']
-                del roomdict['headlist']
-                del roomdict['nicknamelist']
-                del roomdict['pointlist']
-                del roomdict['ranklist']
-                r['roomlist'].append(roomdict)
-            rl.append(r)
-        self.flush({'gamelist':rl})
+        appcode = self.request.get('appcode')
+        if appcode:
+            room = Room.get_by_key_name(appcode)
+            if room:
+                r={'appcode':room.key().name(),'roomlist':[]}
+                for rid in room.roomids:
+                    roomdict = RoomJson.get_spacedict_id(room.key().name(),rid)
+                    del roomdict['userlist']
+                    del roomdict['headlist']
+                    del roomdict['nicknamelist']
+                    del roomdict['pointlist']
+                    del roomdict['ranklist']
+                    del roomdict['appcode']
+                    r['roomlist'].append(roomdict)
+                self.flush(r)
+            else:
+                self.error(400)
+        else:
+            rl = []
+            for room in Room.all():
+                r={'appcode':room.key().name(),'roomlist':[]}
+                for rid in room.roomids:
+                    roomdict = RoomJson.get_spacedict_id(room.key().name(),rid)
+                    del roomdict['userlist']
+                    del roomdict['headlist']
+                    del roomdict['nicknamelist']
+                    del roomdict['pointlist']
+                    del roomdict['ranklist']
+                    del roomdict['appcode']
+                    r['roomlist'].append(roomdict)
+                rl.append(r)
+            self.flush({'gamelist':rl})
