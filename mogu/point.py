@@ -8,7 +8,7 @@ import logging
 from google.appengine.api import memcache
 
 from model.models import Points, Game
-from mogu.pointtool import keystr, getPoint
+from mogu.pointtool import keystr, getPoint, getRankPointUsername
 from tools.page import Page
 from tools.util import getResult
 
@@ -115,6 +115,10 @@ def setGame(code,model):
     return p
 
 class PointUpdate(Page):
+
+    def get(self):
+        self.post()
+
     def post(self):
         try:
             username = self.request.get('UserName')
@@ -185,9 +189,43 @@ class UserPointQuery(Page):
             user = self.request.get('UserName')
             gamelist = self.request.get('gamelist', '').split(',')
             for game in gamelist:
-                p=getPoint(game, user)
-                result.append({'username':user, 'point':p.point,'game':game, 'datetime':p.datetime})
+                p,r,t=getRankPointUsername(game, user)
+                result.append({'username':user, 'point':p,'rank':r, 'game':game, 'datetime':t})
             self.flush(getResult(result,message=u'积分记录查询成功'))
         except:
             self.flush(getResult(False, False, u'积分记录查询失败。'))
 
+
+def sortedgamepoint(p):
+    return p[1]
+
+class PointOnceUpdate(Page):
+
+    def get(self):
+        self.post()
+
+    def post(self):
+        result = []
+        try:
+            num = int(self.request.get('num','0'))
+            game = self.request.get('game')
+            nowdate = (datetime.datetime.utcnow() + timezone).strftime(timeformate)
+            l = []
+            for i in range(num):
+                username = self.request.get('username%s'%i)
+                point = self.request.get('point%s'%i)
+                l.append((username,point))
+            l = sorted(l, key=sortedgamepoint)
+            f_s = len(l)/2
+            f_c = len(l)%2
+            for username,point in l:
+                if f_s==0 and not f_c :
+                    f_s-=1
+                setPoint(game, username, f_s,nowdate,'')
+                f_s-=1
+                p,r,t=getRankPointUsername(game, username)
+                result.append({'u':username, 'p':p,'r':r})
+            self.flush(getResult(result,message=u'积分记录查询成功'))
+        except Exception,e:
+            logging.error("pointupdate "+str(e))
+            self.flush(getResult(False, False, u'保存积分失败。'))

@@ -2,6 +2,7 @@
 #author:u'王健'
 #Date: 14-5-5
 #Time: 下午8:21
+import datetime
 from google.appengine.api import memcache
 
 __author__ = u'王健'
@@ -42,14 +43,19 @@ def getRankPointUsername(game, username):
     p = getPoint(game, username)
     r = getRankPoint(game)
     point = 0
+    t = ''
     rank = ''
     if p:
         point = p.point
+        t = p.datetime
+    if not t:
+        t = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     if r:
         for i, n in enumerate(r.points):
             if point <= n:
                 rank = r.ranks[i]
-    return point, rank
+    return point, rank, t
+
 
 
 roomkeystr = 'room!%s'
