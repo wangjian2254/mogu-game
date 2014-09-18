@@ -1,5 +1,5 @@
 application: mogu-gamerank
-version: 1
+version: 2
 runtime: python27
 api_version: 1
 threadsafe: yes
@@ -16,6 +16,12 @@ handlers:
 - url: /favicon\.ico
   static_files: favicon.ico
   upload: favicon\.ico
+
+
+- url: /crossdomain.xml
+  static_files: swf/crossdomain.xml
+  upload: static/crossdomain.xml
+
 
 - url: .*
   script: main.app

@@ -30,6 +30,7 @@ class Rank(db.Model):
     key_name: appcode
     积分对应的中文名称
     '''
+    id = db.StringProperty(indexed=False)
     points = db.ListProperty(indexed=False,item_type=int)
     ranks = db.StringListProperty(indexed=False)
 
@@ -59,6 +60,7 @@ class Room(db.Model):
     key_name: appcode
     房间列表对应的中文名称
     '''
+    id = db.StringProperty(indexed=False)
     num = db.IntegerProperty(indexed=False)#房间数量
     roomids = db.StringListProperty(indexed=False)
 

@@ -4,6 +4,7 @@
 #Time: 下午9:00
 import json
 import uuid
+from google.appengine.api import memcache
 from model.models import Room, RoomJson
 from setting import WEBURL
 from tools.page import Page
@@ -37,24 +38,48 @@ class RoomList(Page):
         return self.get()
 
 
+class RoomPluginList(Page):
+    def get(self):
+        cachename = 'roomlist'
+        cacheresult = memcache.get(cachename)
+        if cacheresult:
+            self.flush(cacheresult)
+            return
+        l = []
+        for r in Room.all().order('-__key__'):
+            l.append(r.id)
+        self.getResult(True, u'', ','.join(l), cachename=cachename)
+
 class RoomCreate(Page):
     def get(self):
         appcode = self.request.get('appcode', '')
+        cachename = 'roomlist_%s' % appcode
+        cacheresult = memcache.get(cachename)
+        if cacheresult:
+            self.flush(cacheresult)
+            return
         if appcode:
             room = Room.get_by_key_name(appcode)
-
         else:
             room = None
-
-        self.render('template/room/roomUpdate.html', {'room': room, 'pluginurl': WEBURL, 'appcode':appcode})
+        if room:
+            self.getResult(True, u'获取房间信息成功', {"appcode": appcode, 'roomnum': room.num},cachename=cachename)
+        else:
+            self.getResult(True, u'获取房间信息成功', {"appcode": appcode, 'roomnum': 0},cachename=cachename)
+        # self.render('template/room/roomUpdate.html', {'room': room, 'pluginurl': WEBURL, 'appcode':appcode})
 
     def post(self):
         appcode = self.request.get('appcode', None)
+        id = self.request.get('id', None)
+        cachename = 'roomlist_%s' % appcode
+        memcache.delete(cachename)
         num = self.request.get('num', 20)
         if appcode:
             room = Room.get_by_key_name(appcode)
             if not room:
                 room = Room(key_name=appcode)
+                room.id = id
+                memcache.delete( 'roomlist')
             room.num = int(num)
 
             for i in range(room.num-len(room.roomids)):
@@ -70,9 +95,11 @@ class RoomCreate(Page):
             room.put()
 
 
-            self.render('template/room/roomUpdate.html', {'room': room, 'pluginurl': WEBURL, 'appcode':appcode, 'result':'succeed', 'msg':u'保存成功'})
+            self.getResult(True, u'保存房间设置成功', None)
+            # self.render('template/room/roomUpdate.html', {'room': room, 'pluginurl': WEBURL, 'appcode':appcode, 'result':'succeed', 'msg':u'保存成功'})
         else:
-            self.render('template/room/roomUpdate.html', {'room': None, 'pluginurl': WEBURL, 'appcode':appcode, 'result':'warning', 'msg':u'应用包名不存在'})
+            self.getResult(False, u'应用包名不存在', None)
+            # self.render('template/room/roomUpdate.html', {'room': None, 'pluginurl': WEBURL, 'appcode':appcode, 'result':'warning', 'msg':u'应用包名不存在'})
 
 
 class RoomDelete(Page):

@@ -18,8 +18,8 @@
 import webapp2
 from gameserver.gamespace import CreateSpace, AddSpace, GetHotSpace, GetSpace, UploadPoint, GetAllPoint, QuiteSpace
 from mogu.point import PointUpdate, PointQuery, UserPointQuery, PointOnceUpdate
-from mogu.rank import RankList, RankCreate, RankDelete
-from mogu.room import RoomList, RoomCreate, RoomDelete, RoomJSONFile
+from mogu.rank import RankList, RankCreate, RankDelete, RankPluginList
+from mogu.room import RoomList, RoomCreate, RoomDelete, RoomJSONFile, RoomPluginList
 
 
 app = webapp2.WSGIApplication([
@@ -31,13 +31,15 @@ app = webapp2.WSGIApplication([
                                 ('/PointOnceUpdate', PointOnceUpdate),#用户个人所有游戏积分查询
 
 
-                                ('/RankList',RankList),# 已有积分名称的游戏列表
+                                # ('/RankList',RankList),# 已有积分名称的游戏列表
+                                ('/RankPluginList',RankPluginList),# 已有积分名称的游戏列表
                                 ('/RankCreate',RankCreate),# 创建游戏的积分等级
-                                ('/RankDelete',RankDelete),# 删除游戏的积分等级
+                                # ('/RankDelete',RankDelete),# 删除游戏的积分等级
 
-                                ('/RoomList',RoomList),# 已有积分名称的游戏列表
+                                # ('/RoomList',RoomList),# 已有积分名称的游戏列表
+                                ('/RoomPluginList',RoomPluginList),
                                 ('/RoomCreate',RoomCreate),# 创建游戏的积分等级
-                                ('/RoomDelete',RoomDelete),# 创建游戏的积分等级
+                                # ('/RoomDelete',RoomDelete),# 创建游戏的积分等级
 
                                 ('/CreateSpace', CreateSpace),
                                 ('/AddSpace', AddSpace),
